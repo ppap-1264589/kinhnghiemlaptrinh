@@ -5,13 +5,53 @@ use_math: true
 ---
 # Bài toán
 
-Tìm luồng cực đại
+Cho đồ thị có hướng $n$ đỉnh, $m$ cạnh. Tìm luồng cực đại từ đỉnh $1$ đến đỉnh $n$.
 
-# Code
+Các cạnh trên đồ thị ngầm hiểu là đồ thị có hướng. 
 
-Dùng thuật toán Push-Relabel kết hợp với kĩ thuật HLPP và Gap heuristic
+Nếu có cạnh $u \rightarrow v$ và $v \rightarrow u$ trong input, thì hai cạnh đó có thể mang lượng tải khác nhau.
 
-Heuristic cảm giác hơi vô lý nhưng có vẻ làm thuật toán chạy nhanh hơn một tí
+Nếu có cạnh $u \rightarrow v$ bị xuất hiện hai lần trong input, thì cạnh $u \rightarrow v$ đó sẽ mang lượng tải là tổng của hai lượng tải từ input ban đầu.
+
+# Input
+
+Dòng đầu nhập hai số $n$, $m$.
+
+Kể từ dòng thứ hai, mỗi dòng nhập ba số $u$, $v$, $w$, thể hiện cạnh $u \rightarrow v$ có lượng tải là $w$
+
+# Output
+
+Một dòng duy nhất đưa ra luồng cực đại từ đỉnh $1$ đến đỉnh $n$ trên đồ thị.
+
+# Giới hạn:
+
+$1 \leq n \leq 10^5$
+
+$1 \leq m \leq 10^6$
+
+$1 \leq w \leq 10^9$
+
+# Test ví dụ
+
+## Input
+```cpp 
+4 6
+1 2 3
+1 2 1
+2 4 2
+1 3 4
+3 4 5
+4 1 3
+``` 
+
+## Output
+```cpp
+6
+```
+
+# Minh họa
+![Minh họa Maxflow](Minh_hoa_Maxflow.png)
+
 
 ```cpp
 /**
@@ -75,6 +115,8 @@ int cnth[maxn];
 
 int highest;
 
+int cnt_relabel, cnt_gap;
+
 void activate(int u){
     if (!active[u] && excess[u] > 0 && height[u] < n){
         active[u] = true;
@@ -85,11 +127,13 @@ void activate(int u){
 
 void make_gap(int k){
     up(u,1,n) if (height[u] >= k){
+        B[height[u]].clear();
         --cnth[height[u]];
         height[u] = n;
         ++cnth[n];
     }
-    up(h,k,n) B[h].clear();
+    ++cnt_gap;
+//    cout << "O(n)\n";
 }
 
 void push(int u, int i){
@@ -116,6 +160,8 @@ void relabel(int u){
     }
     ++cnth[height[u]];
     activate(u);
+    ++cnt_relabel;
+//    cout << "O(deg(u))\n";
 }
 
 void discharge(int u){
@@ -128,7 +174,9 @@ void discharge(int u){
         if (excess[u] == 0) return;
     }
 
-    if (cnth[height[u]] == 1) make_gap(height[u]);
+    if (cnth[height[u]] == 1 && cnt_relabel > 50*cnt_gap){
+        make_gap(height[u]);
+    } //Heuristic: choose good approximation
     else relabel(u);
 }
 
@@ -180,9 +228,7 @@ void findMaxflow(){
 
 
 
-
 //----- INPUT AND BUILD GRAPH -----
-
 map<pair<int, int>, long long> saved_edges;
 map<pair<int, int>, bool> added;
 
@@ -201,7 +247,6 @@ void buildBiGraph(){
         int v = e.first.second;
         long long w = e.second;
 
-        if (u == v) continue;
         a[u].push_back({v, int(a[v].size()), w, 0});
         a[v].push_back({u, int(a[u].size())-1, w, 0});
     }
@@ -222,12 +267,8 @@ void buildDiGraph(){
         long long w = e.second;
 
         if (!added[make_pair(u, v)]){
-            added[make_pair(u, v)] = true;
+            added[make_pair(u, v)] = added[make_pair(v, u)] = true;
             a[u].push_back({v, int(a[v].size()), w, 0});
-        }
-
-        if (!added[make_pair(v, u)]){
-            added[make_pair(v, u)] = true;
             a[v].push_back({u, int(a[u].size())-1, saved_edges[make_pair(v, u)], 0});
         }
     }
@@ -254,8 +295,6 @@ signed main(){
 
 
 
-
-
 void find_flow_to_sink(){
     long long sum2 = 0;
     for (EDGE& e : a[t]){
@@ -265,10 +304,6 @@ void find_flow_to_sink(){
     }
     cout << sum2;
 }
-
-
-
-
 
 //Excess[t], sum(flow from v to t) with all v->t, or sum of capacity on Min-cut edges
 //are all max flow we need to find

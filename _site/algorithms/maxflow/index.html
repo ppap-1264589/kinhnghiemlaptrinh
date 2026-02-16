@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="/kinhnghiemlaptrinh/assets/css/style.css?v=">
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Maxflow | Kinh nghiệm lập trình</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Maxflow" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/kinhnghiemlaptrinh/algorithms/maxflow/" />
+<meta property="og:url" content="http://localhost:4000/kinhnghiemlaptrinh/algorithms/maxflow/" />
+<meta property="og:site_name" content="Kinh nghiệm lập trình" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Maxflow" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","headline":"Maxflow","url":"http://localhost:4000/kinhnghiemlaptrinh/algorithms/maxflow/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/kinhnghiemlaptrinh/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+
+    
+    
+    <script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+  },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+    
+
+    <link rel="stylesheet" href="/kinhnghiemlaptrinh/assets/css/custom.css">
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          
+
+          <h1 id="project_title">Kinh nghiệm lập trình</h1>
+          <h2 id="project_tagline"></h2>
+
+          
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1 id="bài-toán">Bài toán</h1>
+
+<p>Cho đồ thị có hướng $n$ đỉnh, $m$ cạnh. Tìm luồng cực đại từ đỉnh $1$ đến đỉnh $n$.</p>
+
+<p>Các cạnh trên đồ thị ngầm hiểu là đồ thị có hướng.</p>
+
+<p>Nếu có cạnh $u \rightarrow v$ và $v \rightarrow u$ trong input, thì hai cạnh đó có thể mang lượng tải khác nhau.</p>
+
+<p>Nếu có cạnh $u \rightarrow v$ bị xuất hiện hai lần trong input, thì cạnh $u \rightarrow v$ đó sẽ mang lượng tải là tổng của hai lượng tải từ input ban đầu.</p>
+
+<h1 id="input">Input</h1>
+
+<p>Dòng đầu nhập hai số $n$, $m$.</p>
+
+<p>Kể từ dòng thứ hai, mỗi dòng nhập ba số $u$, $v$, $w$, thể hiện cạnh $u \rightarrow v$ có lượng tải là $w$</p>
+
+<h1 id="output">Output</h1>
+
+<p>Một dòng duy nhất đưa ra luồng cực đại từ đỉnh $1$ đến đỉnh $n$ trên đồ thị.</p>
+
+<h1 id="giới-hạn">Giới hạn:</h1>
+
+<p>$1 \leq n \leq 10^5$</p>
+
+<p>$1 \leq m \leq 10^6$</p>
+
+<p>$1 \leq w \leq 10^9$</p>
+
+<h1 id="test-ví-dụ">Test ví dụ</h1>
+
+<h2 id="input-1">Input</h2>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">4</span> <span class="mi">6</span>
+<span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
+<span class="mi">1</span> <span class="mi">2</span> <span class="mi">1</span>
+<span class="mi">2</span> <span class="mi">4</span> <span class="mi">2</span>
+<span class="mi">1</span> <span class="mi">3</span> <span class="mi">4</span>
+<span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span>
+<span class="mi">4</span> <span class="mi">1</span> <span class="mi">3</span>
+</code></pre></div></div>
+
+<h2 id="output-1">Output</h2>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">6</span>
+</code></pre></div></div>
+
+<h1 id="minh-họa">Minh họa</h1>
+<p><img src="Minh_hoa_Maxflow.png" alt="Minh họa Maxflow" /></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Problem: Find the maximum flow in given graph
+ *
+ * Input:
+ * First line contains n and m: number of nodes and edges on graph
+ * From the second line to (m+1)'th line, each line contains u, v, c: an directed edge from u to v with capacity c
+ *
+ * Output:
+ * Only 1 line contains the maximum flow found on graph with source is vertex 1 and sink is vertex n
+ *
+ * Constraints:
+ * 1 &lt;= n &lt;= 10^5
+ * 1 &lt;= m &lt;= 10^6
+ * 1 &lt;= c &lt;= 10^9
+ * m &lt;= n*(n-1)/2
+ * The given graph may contains both (u,v) and (v,u) with different capacities
+ * The given graph may contains duplicated edges (total capacity on that edge is the sum of individual capacities)
+ *
+ * Example:
+ * Input:
+ * 4 6
+ * 1 2 3
+ * 1 2 1
+ * 2 4 2
+ * 1 3 4
+ * 3 4 5
+ * 4 1 3
+ *
+ * Output:
+ * 6
+ *
+**/</span>
+
+
+<span class="cp">#include</span> <span class="cpf">&lt;bits/stdc++.h&gt;</span><span class="cp">
+#define up(i,a,b) for (int i = (int)a; i &lt;= (int)b; i++)
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">maxn</span> <span class="o">=</span> <span class="mf">1e5</span> <span class="o">+</span> <span class="mi">10</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">MOD</span> <span class="o">=</span> <span class="mf">1e9</span> <span class="o">+</span> <span class="mi">7</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">MODLL</span> <span class="o">=</span> <span class="mi">1000000000000000011LL</span><span class="p">;</span>
+<span class="c1">// Dung luong flow toi da</span>
+
+
+<span class="kt">int</span> <span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">t</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">EDGE</span><span class="p">{</span>
+    <span class="kt">int</span> <span class="n">v</span><span class="p">,</span> <span class="n">rev</span><span class="p">;</span> <span class="c1">//rev = chi so cua dinh u trong ma tran ke a[v]</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">capa</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">flow</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">EDGE</span><span class="o">&gt;</span> <span class="n">a</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+<span class="c1">// Do thi</span>
+
+<span class="kt">long</span> <span class="kt">long</span> <span class="n">excess</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">height</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+<span class="n">bitset</span><span class="o">&lt;</span><span class="n">maxn</span><span class="o">&gt;</span> <span class="n">active</span><span class="p">;</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">B</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">cnth</span><span class="p">[</span><span class="n">maxn</span><span class="p">];</span>
+
+<span class="kt">int</span> <span class="n">highest</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">cnt_relabel</span><span class="p">,</span> <span class="n">cnt_gap</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="n">activate</span><span class="p">(</span><span class="kt">int</span> <span class="n">u</span><span class="p">){</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">active</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">excess</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">){</span>
+        <span class="n">active</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]].</span><span class="n">push_back</span><span class="p">(</span><span class="n">u</span><span class="p">);</span>
+        <span class="n">highest</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">highest</span><span class="p">,</span> <span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">make_gap</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="p">){</span>
+    <span class="n">up</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">k</span><span class="p">){</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]].</span><span class="n">clear</span><span class="p">();</span>
+        <span class="o">--</span><span class="n">cnth</span><span class="p">[</span><span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]];</span>
+        <span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+        <span class="o">++</span><span class="n">cnth</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="o">++</span><span class="n">cnt_gap</span><span class="p">;</span>
+<span class="c1">//    cout &lt;&lt; "O(n)\n";</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="kt">int</span> <span class="n">u</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i</span><span class="p">){</span>
+    <span class="n">EDGE</span><span class="o">&amp;</span> <span class="n">e</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">v</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">delta</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">excess</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="n">e</span><span class="p">.</span><span class="n">capa</span> <span class="o">-</span> <span class="n">e</span><span class="p">.</span><span class="n">flow</span><span class="p">);</span>
+
+    <span class="n">EDGE</span><span class="o">&amp;</span> <span class="n">rev_e</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">e</span><span class="p">.</span><span class="n">rev</span><span class="p">];</span>
+
+    <span class="n">e</span><span class="p">.</span><span class="n">flow</span> <span class="o">+=</span> <span class="n">delta</span><span class="p">;</span>
+    <span class="n">rev_e</span><span class="p">.</span><span class="n">flow</span> <span class="o">-=</span> <span class="n">delta</span><span class="p">;</span>
+    <span class="n">excess</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">-=</span> <span class="n">delta</span><span class="p">;</span>
+    <span class="n">excess</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">+=</span> <span class="n">delta</span><span class="p">;</span>
+    <span class="n">activate</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">relabel</span><span class="p">(</span><span class="kt">int</span> <span class="n">u</span><span class="p">){</span>
+    <span class="o">--</span><span class="n">cnth</span><span class="p">[</span><span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]];</span>
+    <span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">EDGE</span> <span class="n">e</span> <span class="o">:</span> <span class="n">a</span><span class="p">[</span><span class="n">u</span><span class="p">]){</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">capa</span> <span class="o">-</span> <span class="n">e</span><span class="p">.</span><span class="n">flow</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="n">height</span><span class="p">[</span><span class="n">e</span><span class="p">.</span><span class="n">v</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="o">++</span><span class="n">cnth</span><span class="p">[</span><span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]];</span>
+    <span class="n">activate</span><span class="p">(</span><span class="n">u</span><span class="p">);</span>
+    <span class="o">++</span><span class="n">cnt_relabel</span><span class="p">;</span>
+<span class="c1">//    cout &lt;&lt; "O(deg(u))\n";</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">discharge</span><span class="p">(</span><span class="kt">int</span> <span class="n">u</span><span class="p">){</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">a</span><span class="p">[</span><span class="n">u</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="n">EDGE</span> <span class="n">e</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+        <span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">v</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">capa</span> <span class="o">-</span> <span class="n">e</span><span class="p">.</span><span class="n">flow</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">==</span> <span class="n">height</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">){</span> <span class="c1">//excess[u] &gt; 0</span>
+            <span class="n">push</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">excess</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">cnth</span><span class="p">[</span><span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]]</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">cnt_relabel</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="o">*</span><span class="n">cnt_gap</span><span class="p">){</span>
+        <span class="n">make_gap</span><span class="p">(</span><span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]);</span>
+    <span class="p">}</span> <span class="c1">//Heuristic: choose good approximation</span>
+    <span class="k">else</span> <span class="n">relabel</span><span class="p">(</span><span class="n">u</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">findMincut</span><span class="p">(){</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">min_cut</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">up</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">EDGE</span> <span class="n">e</span> <span class="o">:</span> <span class="n">a</span><span class="p">[</span><span class="n">u</span><span class="p">]){</span>
+        <span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">v</span><span class="p">;</span>
+        <span class="kt">long</span> <span class="kt">long</span> <span class="n">capa</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">capa</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">capa</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">height</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">n</span> <span class="o">&amp;&amp;</span> <span class="n">height</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">){</span>
+                <span class="n">min_cut</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">make_pair</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">));</span>
+                <span class="n">sum</span> <span class="o">+=</span> <span class="n">capa</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="c1">//    cout &lt;&lt; sum &lt;&lt; "\n";</span>
+<span class="c1">//    cout &lt;&lt; "\n";</span>
+<span class="c1">//    for (auto x : min_cut){</span>
+<span class="c1">//        cout &lt;&lt; x.first &lt;&lt; " " &lt;&lt; x.second &lt;&lt; "\n";</span>
+<span class="c1">//    }</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">findMaxflow</span><span class="p">(){</span>
+    <span class="n">excess</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">MODLL</span><span class="p">;</span>
+    <span class="n">height</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="n">cnth</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="n">cnth</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">a</span><span class="p">[</span><span class="n">s</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="n">EDGE</span><span class="o">&amp;</span> <span class="n">e</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">s</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">capa</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="n">push</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">highest</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">){</span>
+        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">B</span><span class="p">[</span><span class="n">highest</span><span class="p">].</span><span class="n">empty</span><span class="p">()){</span>
+            <span class="kt">int</span> <span class="n">u</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">highest</span><span class="p">].</span><span class="n">back</span><span class="p">();</span>
+            <span class="n">B</span><span class="p">[</span><span class="n">highest</span><span class="p">].</span><span class="n">pop_back</span><span class="p">();</span>
+            <span class="n">active</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">u</span> <span class="o">==</span> <span class="n">t</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+            <span class="n">discharge</span><span class="p">(</span><span class="n">u</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="o">--</span><span class="n">highest</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+
+
+
+<span class="c1">//----- INPUT AND BUILD GRAPH -----</span>
+<span class="n">map</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">long</span><span class="o">&gt;</span> <span class="n">saved_edges</span><span class="p">;</span>
+<span class="n">map</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">added</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="n">buildBiGraph</span><span class="p">(){</span>
+    <span class="n">up</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">;</span>
+        <span class="kt">long</span> <span class="kt">long</span> <span class="n">w</span><span class="p">;</span>
+        <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">u</span> <span class="o">&gt;&gt;</span> <span class="n">v</span> <span class="o">&gt;&gt;</span> <span class="n">w</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">u</span> <span class="o">==</span> <span class="n">v</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">u</span> <span class="o">&gt;</span> <span class="n">v</span><span class="p">)</span> <span class="n">swap</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
+        <span class="n">saved_edges</span><span class="p">[</span><span class="n">make_pair</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">w</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">e</span> <span class="o">:</span> <span class="n">saved_edges</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">u</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+        <span class="kt">long</span> <span class="kt">long</span> <span class="n">w</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+
+        <span class="n">a</span><span class="p">[</span><span class="n">u</span><span class="p">].</span><span class="n">push_back</span><span class="p">({</span><span class="n">v</span><span class="p">,</span> <span class="kt">int</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">v</span><span class="p">].</span><span class="n">size</span><span class="p">()),</span> <span class="n">w</span><span class="p">,</span> <span class="mi">0</span><span class="p">});</span>
+        <span class="n">a</span><span class="p">[</span><span class="n">v</span><span class="p">].</span><span class="n">push_back</span><span class="p">({</span><span class="n">u</span><span class="p">,</span> <span class="kt">int</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">u</span><span class="p">].</span><span class="n">size</span><span class="p">())</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mi">0</span><span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">buildDiGraph</span><span class="p">(){</span>
+    <span class="n">up</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">;</span>
+        <span class="kt">long</span> <span class="kt">long</span> <span class="n">w</span><span class="p">;</span>
+        <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">u</span> <span class="o">&gt;&gt;</span> <span class="n">v</span> <span class="o">&gt;&gt;</span> <span class="n">w</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">u</span> <span class="o">==</span> <span class="n">v</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="n">saved_edges</span><span class="p">[</span><span class="n">make_pair</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">w</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">e</span> <span class="o">:</span> <span class="n">saved_edges</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">u</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+        <span class="kt">long</span> <span class="kt">long</span> <span class="n">w</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">added</span><span class="p">[</span><span class="n">make_pair</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)]){</span>
+            <span class="n">added</span><span class="p">[</span><span class="n">make_pair</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span> <span class="o">=</span> <span class="n">added</span><span class="p">[</span><span class="n">make_pair</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+            <span class="n">a</span><span class="p">[</span><span class="n">u</span><span class="p">].</span><span class="n">push_back</span><span class="p">({</span><span class="n">v</span><span class="p">,</span> <span class="kt">int</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">v</span><span class="p">].</span><span class="n">size</span><span class="p">()),</span> <span class="n">w</span><span class="p">,</span> <span class="mi">0</span><span class="p">});</span>
+            <span class="n">a</span><span class="p">[</span><span class="n">v</span><span class="p">].</span><span class="n">push_back</span><span class="p">({</span><span class="n">u</span><span class="p">,</span> <span class="kt">int</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">u</span><span class="p">].</span><span class="n">size</span><span class="p">())</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">saved_edges</span><span class="p">[</span><span class="n">make_pair</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">)],</span> <span class="mi">0</span><span class="p">});</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">find_flow_to_sink</span><span class="p">();</span>
+
+<span class="kt">signed</span> <span class="n">main</span><span class="p">(){</span>
+    <span class="n">ios_base</span><span class="o">::</span><span class="n">sync_with_stdio</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+    <span class="n">cin</span><span class="p">.</span><span class="n">tie</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="cp">#define Task "A"
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">fopen</span><span class="p">(</span><span class="n">Task</span><span class="s">".inp"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)){</span>
+        <span class="n">freopen</span><span class="p">(</span><span class="n">Task</span><span class="s">".inp"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+        <span class="n">freopen</span><span class="p">(</span><span class="n">Task</span><span class="s">".out"</span><span class="p">,</span> <span class="s">"w"</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">n</span> <span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+
+    <span class="n">buildDiGraph</span><span class="p">();</span> <span class="c1">//choose buildBiGraph() or buildDiGraph() to make graph bidirectional or not.</span>
+    <span class="n">findMaxflow</span><span class="p">();</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">excess</span><span class="p">[</span><span class="n">t</span><span class="p">];</span>
+<span class="p">}</span>
+
+
+
+<span class="kt">void</span> <span class="n">find_flow_to_sink</span><span class="p">(){</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">sum2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">EDGE</span><span class="o">&amp;</span> <span class="n">e</span> <span class="o">:</span> <span class="n">a</span><span class="p">[</span><span class="n">t</span><span class="p">]){</span>
+        <span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">v</span><span class="p">;</span>
+        <span class="n">EDGE</span><span class="o">&amp;</span> <span class="n">rev_e</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">e</span><span class="p">.</span><span class="n">rev</span><span class="p">];</span>
+        <span class="n">sum2</span> <span class="o">+=</span> <span class="n">rev_e</span><span class="p">.</span><span class="n">flow</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">sum2</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//Excess[t], sum(flow from v to t) with all v-&gt;t, or sum of capacity on Min-cut edges</span>
+<span class="c1">//are all max flow we need to find</span>
+
+<span class="c1">//Some nodes still have excess, but that's not problem to find max flow</span>
+</code></pre></div></div>
+
+<p><a href="../../">Quay lại trang chủ</a></p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+  </body>
+</html>
